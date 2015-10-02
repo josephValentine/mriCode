@@ -1,0 +1,208 @@
+% Algorithm Bench with Real Data
+% Initialize with Real Data
+
+if 1
+    load ssfp_knee4.mat;
+end
+
+% View Data
+%% ------------------------------------------------------------------------
+% Plot Magnitude Data
+if 0
+    figure();
+    matlabpool
+    parfor n=1:4
+        subplot(strcat('14',num2str(n))); imshow(abs(data{n}), []);
+    end
+end
+
+%% ------------------------------------------------------------------------
+% Plot Phase Data
+if 0
+    figure();
+    for n=1:4
+        subplot(strcat('14',num2str(n))); imshow(angle(data{n}), []);
+    end   
+end
+
+% Process Data
+
+%% ------------------------------------------------------------------------
+% Take Complex Sum of Four Images and Plot
+if 0
+    rows = length(data{1}(:,1));
+    cols = length(data{1}(1,:));
+    avgImg = zeros(rows,cols);
+    for r = 1:rows
+        for c = 1:cols
+            avgImg(r,c) = data{1}(r,c) + data{2}(r,c) + data{3}(r,c) + data{4}(r,c);
+        end
+    end
+    figure();
+    subplot('121'); imshow(abs(avgImg),[]);
+    subplot('122'); imshow(angle(avgImg),[]);
+    title('Complex Sum');  
+end
+
+%% ------------------------------------------------------------------------
+% Use Dixon Separation Algorithm and Plot
+if 0
+   
+    theta = [0 1/4 2/4 3/4 1/4 3/4] *pi;%was neg and 2pi
+    s=data;
+    for n = 1:6
+            s{n} = s{n} * exp(-1i*theta(n));
+    end
+    [ water2, fat2 ] = DixonSeparation(s{1,1}, s{2,4});
+    [ water3, fat3 ] = DixonSeparation(s{5,4}, s{1,4}, s{2,4});
+    
+    figure();
+    subplot('241'); imshow(abs(water2),[]);
+    subplot('242'); imshow(angle(water2),[]);
+    subplot('243'); imshow(abs(fat2),[]);
+    subplot('244'); imshow(angle(fat2),[]);
+    subplot('245'); imshow(abs(water3),[]);
+    subplot('246'); imshow(angle(water3),[]);
+    subplot('247'); imshow(abs(fat3),[]);
+    subplot('248'); imshow(angle(fat3),[]);
+    title('Dixon Separation');   
+end
+
+%% ------------------------------------------------------------------------
+% Use SSFP Separation Algorithm and Plot
+if 0
+     theta = -[0 3/4 1/2 1/4] * pi;
+    [ img, img2, img3, img4 ] = AdjustSSFPConstantPhase(data{1}, data{4}, data{3}, data{2}, theta);
+    [ water, fat ] = SSFPSeparation(img, img2, img3, img4, 0 );
+    [water2, fat2] =joe_ssfpseparate(img,img2,img3,img4,img,img2);
+    
+    figure();
+    subplot('141'); imshow(abs(img),[]);
+    subplot('142'); imshow(abs(img2),[]);
+    subplot('143'); imshow(abs(water),[]);
+    subplot('144'); imshow(abs(fat),[]);
+    PlotSpectrum(img,136);
+    PlotSpectrum(img,162);
+%     figure();
+%     subplot('221'); imshow(abs(water),[]);
+%     subplot('222'); imshow(angle(water),[]);
+%     subplot('223'); imshow(abs(fat),[]);
+%     subplot('224'); imshow(angle(fat),[]);
+%     
+%     figure();
+%     subplot(1,6,1); imshow(abs(img),[]);
+%     subplot(1,6,2); imshow(abs(img2),[]);
+%     subplot(1,6,3); imshow(abs(img3),[]);
+%     subplot(1,6,4); imshow(abs(img4),[]);
+%     subplot(1,6,5); imshow(abs(water),[]);
+%     subplot(1,6,6); imshow(abs(fat),[]);
+end
+
+%% ------------------------------------------------------------------------
+% Use SSFP Separation with Field Map Algorithm and Plot
+if 1
+   
+    s=data; 
+    theta = [0 1/4 2/4 3/4 1/4 3/4] * pi;%was neg and 2pi
+    avg_water = zeros(size(s{2},1),size(s{2},2));
+    avg_fat = zeros(size(s{2},1),size(s{2},2));
+    avg_water2 = zeros(size(s{2},1),size(s{2},2));
+    avg_fat2 = zeros(size(s{2},1),size(s{2},2));
+    
+    for k=1:1%loop through coils
+        'coil next'
+        % Adjust Signal Phase
+        for n = 1:6
+            s{n} = s{n} * exp(-1i*theta(n));
+        end
+        img = s{1,k}; img2 = s{2,k}; img3 = s{3,k}; img4 = s{4,k}; img6 = s{5,k}; img8 = s{6,k};
+
+        [water, fat ] = SSFPSeparationWithFieldMap(img, img4, img3, img2, [], img8, [], img6, 1);
+        [water2, fat2] = SSFPGradientReconV2(img, img2, img3, img4,img6,img8, 'gradient');
+        avg_water = avg_water + abs(water).^2;
+        avg_fat = avg_fat + abs(fat).^2;%Sos?
+        
+        avg_water2 = avg_water2 + abs(water2).^2;
+        avg_fat2 = avg_fat2 + abs(fat2).^2;
+        
+        %non sum of squares
+        avg_watera =angle(water);
+        avg_fata = angle(fat);%Sos?
+        
+        avg_water2a = angle(water2);
+        avg_fat2a = angle(fat2);
+     end
+    avg_water = sqrt(avg_water);
+    avg_fat = sqrt(avg_fat);
+    
+    avg_water2 = sqrt(avg_water2);
+    avg_fat2 = sqrt(avg_fat2);
+    
+%     figure();
+%     subplot('141'); imshow(abs(s{1}),[]); title('in phase');
+%     subplot('142'); imshow(abs(s{2}),[]); title('out phase');
+%     subplot('143'); imshow(abs(avg_water2),[]); title('water reconv2');
+%     subplot('144'); imshow(abs(avg_fat2),[]); title('fat reconv2');
+    
+    figure();
+    subplot('121'); imshow(avg_watera,[]); title('recon1phase');
+    subplot('122'); imshow(avg_water2a,[]); title('recon2phase');
+%     subplot('143'); imshow(angle(s{2}),[]); title('img1 phase');
+%     subplot('144'); imshow(angle(s{3}),[]); title('img2 phase');
+
+end
+
+%% ------------------------------------------------------------------------
+% compare SSFP separation methods
+if 0
+    theta = -[0 1/4 2/4 3/4 1/4 3/4] * pi;
+    avg_water = zeros(size(data{1},1),size(data{1},2));
+    avg_fat = zeros(size(data{1},1),size(data{1},2));
+    avg_water2 = zeros(size(data{1},1),size(data{1},2));
+    avg_fat2 = zeros(size(data{1},1),size(data{1},2));
+    avg_water3 = zeros(size(data{1},1),size(data{1},2));
+    avg_fat3 = zeros(size(data{1},1),size(data{1},2));
+    s=data;
+    
+    te = [.005 .00617 .00383];
+    for k=1:4%loop through coils
+        % Adjust Signal Phase
+        for n = 1:1
+            s{n} = s{n} * exp(1i*theta(n));
+        end
+        img = s{1,k}; img2 = s{2,k}; img3 = s{3,k}; img4 = s{4,k}; img5 = s{5,k}; img6 = s{6,k};
+
+        [ water, fat ] = SSFPSeparation(img, img2, img3, img4, 1 );
+        [water2, fat2 ] = SSFPSeparationWithFieldMap(img, img2, img3, img4, [], img5, [], img6, 1);
+        [ water3, fat3 ] = SSFPSeparationIdeal( img, img2, img3, img4, img5, img6, te(1),te(2),te(3) );
+        
+        avg_water = avg_water + water.^2;
+        avg_fat = avg_fat + fat.^2;%Sos?
+        
+        avg_water2 = avg_water2 + water2.^2;
+        avg_fat2 = avg_fat2 + fat2.^2;
+        
+        avg_water3 = avg_water3 + water3.^2;
+        avg_fat3 = avg_fat3 + fat3.^2;
+     end
+    avg_water = sqrt(avg_water);
+    avg_fat = sqrt(avg_fat);
+    
+    avg_water2 = sqrt(avg_water2);
+    avg_fat2 = sqrt(avg_fat2);
+    
+    avg_water3 = sqrt(avg_water3);
+    avg_fat3 = sqrt(avg_fat3);
+    
+    figure();
+    subplot('321'); imshow(abs(avg_water),[]);
+    subplot('322'); imshow(abs(avg_fat),[]);
+    subplot('323'); imshow(abs(avg_water2),[]);
+    subplot('324'); imshow(abs(avg_fat2),[]);
+    subplot('325'); imshow(abs(img),[]);
+    subplot('326'); imshow(abs(img2),[]);
+    
+end
+
+
+
