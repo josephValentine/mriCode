@@ -1,9 +1,11 @@
+%%-------------------------------------------------------------------------------------
+% test bench for simulating ssfp data with varying parameters.
 
-% Algorithm Bench
 clear;
-whitebg('k');
+whitebg('k');%change background to black (it looks nice!)
+
 % Inital Parameters
-alpha = pi/8; phi = 0; dphi = pi; Nr = 200;%makes iterative return exact phase result of steadystate
+alpha = pi/8; phi = 0; dphi = pi; Nr = 200;%makes iterative return exact phase result of steadystate in SSFP.m
 TR = 10/1000; TE = TR/2; f0 = 0;
 
 FoSD             = 0.05;%.05       	% Off-Resonance Std. Dev. in Hz

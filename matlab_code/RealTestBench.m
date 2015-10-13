@@ -2,7 +2,7 @@
 % Initialize with Real Data
 
 if 1
-    load ssfp_knee4.mat;
+    load ssfp_knee4.mat; %initializes the data cell array with raw data stored in mat
 end
 
 % View Data

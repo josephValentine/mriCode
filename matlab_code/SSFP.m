@@ -1,9 +1,8 @@
 function [ Mc ] = SSFP(beta, M0, alpha, phi, dphi, TR, TE, T1, T2, Nr)
-% SSFP(beta) generates an SSFP transverse magnetization vector, Mxy,
-% with an off-resonance precession phase in TR, beta.
-%
+% 
 % SSFP(beta, M0, alpha, phi, dphi, TR, TE, T1, T2, Nr) generates an
-% SSFP transverse magnetization vector, Mxy, with the following
+% SSFP transverse magnetization vector, Mxy, by either using the steady state Equation
+% or by using the block equation in an iterative approach with the following
 % parameters:
 %   beta = additional off-resonance precession phase between excitations
 %   M0 = initial magnetization strength
@@ -71,7 +70,7 @@ if 0
     Mc = M(1) + 1j*M(2);
     
     %%
-    % Steady State SSFP Simulation
+    % Steady State SSFP Simulation. refer to Neal Bangerter's thesis
    
 else
    
