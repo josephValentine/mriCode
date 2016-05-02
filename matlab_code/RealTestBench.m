@@ -2,7 +2,7 @@
 % Initialize with Real Data
 
 if 1
-    load ssfp_knee4.mat; %initializes the data cell array with raw data stored in mat
+    load SSFP_knee4.mat; %initializes the data cell array with raw data stored in mat
 end
 
 % View Data
@@ -138,17 +138,17 @@ if 1
     avg_water2 = sqrt(avg_water2);
     avg_fat2 = sqrt(avg_fat2);
     
-%     figure();
-%     subplot('141'); imshow(abs(s{1}),[]); title('in phase');
-%     subplot('142'); imshow(abs(s{2}),[]); title('out phase');
-%     subplot('143'); imshow(abs(avg_water2),[]); title('water reconv2');
-%     subplot('144'); imshow(abs(avg_fat2),[]); title('fat reconv2');
+     figure();
+    subplot('141'); imshow(abs(avg_fat),[]); title('in phase');
+     subplot('142'); imshow(abs(avg_water),[]); title('out phase');
+     subplot('143'); imshow(abs(avg_water2),[]); title('water reconv2');
+     subplot('144'); imshow(abs(avg_fat2),[]); title('fat reconv2');
     
     figure();
     subplot('121'); imshow(avg_watera,[]); title('recon1phase');
     subplot('122'); imshow(avg_water2a,[]); title('recon2phase');
-%     subplot('143'); imshow(angle(s{2}),[]); title('img1 phase');
-%     subplot('144'); imshow(angle(s{3}),[]); title('img2 phase');
+    subplot('143'); imshow(angle(s{2}),[]); title('img1 phase');
+    subplot('144'); imshow(angle(s{3}),[]); title('img2 phase');
 
 end
 
