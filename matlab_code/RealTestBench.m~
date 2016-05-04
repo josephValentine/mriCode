@@ -1,6 +1,7 @@
 % Algorithm Bench with Real Data
 % Initialize with Real Data
-addpath('/home/josephwv/Desktop/code/matlab_code/fatWaterSeparation')
+load('fatWaterSeparation/SSFPGradientReconV2')
+load('fatWaterSeparation/SSFPSeparation.')
 
 if 1
     load SSFP_knee4.mat; %initializes the data cell array with raw data stored in mat
